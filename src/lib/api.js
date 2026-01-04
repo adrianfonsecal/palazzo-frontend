@@ -1,6 +1,7 @@
 // lib/api.ts
 import axios from 'axios';
 import cookie from 'js-cookie';
+
 import { getToken } from './auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -59,11 +60,24 @@ export async function getInvitationByUuid(uuid) {
   }
 }
 
-// Agrega esta función para el CRM
 export const getMyInvitations = async () => {
   // El interceptor que configuramos ya inyectará el Token aquí automáticamente
   const { data } = await api.get('/admin/invitations/');
   return data;
+};
+
+export const createInvitation = async (data) => {
+  const response = await api.post('/admin/invitations/', data);
+  return response.data;
+};
+
+export const createGuest = async ( data ) => {
+  const response = await api.post('/admin/guests/', data);
+  return response.data;
+};
+
+export const deleteGuest = async ( id ) => {
+  await api.delete(`/admin/guests/${id}/`);
 };
 
 export default api;
