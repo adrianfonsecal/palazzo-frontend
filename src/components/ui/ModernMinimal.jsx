@@ -1,5 +1,4 @@
 // components/templates/ModernMinimal.tsx
-import { InvitationData } from '@/types';
 
 export default function ModernMinimal({ data }) {
   return (

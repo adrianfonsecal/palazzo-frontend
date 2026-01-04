@@ -1,28 +1,25 @@
-// app/(guest)/invitacion/[uuid]/page.jsx
+// app/(guest)/invitacion/[uuid]/page.tsx
 import { notFound } from 'next/navigation';
-import { getInvitationByUuid } from '@/lib/api'; // Tu función fetch
+import { getInvitationByUuid } from '@/lib/api';
 import { getThemeComponent } from '@/components/templates';
 
 export default async function InvitationPage({ params }) {
-  // 1. Obtener datos del Backend (Server Component)
-  const invitationData = await getInvitationByUuid(params.uuid);
+  // 1. Obtenemos el UUID de la URL
+  const { uuid } = await params;
 
-  if (!invitationData) {
+  // 2. Fetch de datos al backend (Server-side)
+  const invitation = await getInvitationByUuid(uuid);
+
+  // 3. Si no existe o devuelve error, mostramos 404
+  if (!invitation) {
     return notFound();
   }
 
-  // 2. Identificar qué diseño quieren los novios
-  // Asumimos que viene en data.wedding.theme_config.template_id o data.wedding.template_id
-  const themeId = invitationData.wedding.theme_config?.template_id || 'classic_elegant';
-
-  // 3. Obtener el componente visual correcto
+  // 4. Seleccionamos el template
+  // Si tu backend no devuelve theme_config aún, usará el default del helper
+  const themeId = invitation.wedding?.theme_config?.template_id;
   const ThemeComponent = getThemeComponent(themeId);
 
-  // 4. Renderizar
-  return (
-    <main>
-       {/* Le pasamos todos los datos al componente de diseño */}
-       <ThemeComponent data={invitationData} />
-    </main>
-  );
+  // 5. Renderizamos
+  return <ThemeComponent data={invitation} />;
 }
