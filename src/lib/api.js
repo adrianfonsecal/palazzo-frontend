@@ -1,5 +1,7 @@
 // lib/api.ts
 import axios from 'axios';
+import cookie from 'js-cookie';
+import { getToken } from './auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -12,15 +14,28 @@ const api = axios.create({
 
 // Interceptor: Antes de cada petición, inyecta el token si existe
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token'); // O leer de cookies
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  // solo inyectamos token si estamos en el navegador (cliente)
+  if (typeof window !== 'undefined') {
+    const token = getToken();
+    //const csrftoken = cookie.get('csrftoken');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+      //config.headers['X-CSRFToken'] = csrftoken;
+    }
   }
   return config;
 });
 
-export default api;
+// Funcion Login
 
+export const login = async (username, password) => {
+  // Hacemos POST a la vista TokenObtainPairView de Django
+  const { data } = await api.post('/token/', {
+    username,
+    password,
+  });
+  return data; // { access: '...', refresh: '...' }
+}
 
 export async function getInvitationByUuid(uuid) {
   try {
@@ -43,3 +58,12 @@ export async function getInvitationByUuid(uuid) {
     return null;
   }
 }
+
+// Agrega esta función para el CRM
+export const getMyInvitations = async () => {
+  // El interceptor que configuramos ya inyectará el Token aquí automáticamente
+  const { data } = await api.get('/admin/invitations/');
+  return data;
+};
+
+export default api;
