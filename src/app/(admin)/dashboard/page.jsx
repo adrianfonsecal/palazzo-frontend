@@ -4,9 +4,13 @@ import { useEffect, useState } from 'react';
 import { getMyInvitations } from '@/lib/api';
 import GuestsPage from '../guests/page';
 
+
 export default function DashboardPage() {
     const [invitations, setInvitations] = useState([]);
     const [loading, setLoading] = useState(true);
+    
+    
+
 
     useEffect(() => {
         const fetchData = async () => {

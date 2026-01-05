@@ -13,6 +13,7 @@ export default function Navbar({ user }) {
         router.push('/login');
         router.refresh();
     };
+    
     const isLoggedIn = !!user; // Convierte a booleano
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 

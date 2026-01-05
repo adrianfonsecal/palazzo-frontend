@@ -20,6 +20,7 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
+
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get('access_token');
   const user = sessionCookie ? { name: 'Admin' } : null;
