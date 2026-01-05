@@ -60,9 +60,15 @@ export async function getInvitationByUuid(uuid) {
   }
 }
 
-export const getMyInvitations = async () => {
+export const getAllInvitations = async () => {
   // El interceptor que configuramos ya inyectará el Token aquí automáticamente
   const { data } = await api.get('/admin/invitations/');
+  return data;
+};
+
+export const getAllGuests = async () => {
+  // El interceptor que configuramos ya inyectará el Token aquí automáticamente
+  const { data } = await api.get('/admin/guests/');
   return data;
 };
 

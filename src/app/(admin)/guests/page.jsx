@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getMyInvitations } from '@/lib/api';
+import { getAllInvitations } from '@/lib/api';
 import { getColumns } from './columns';
 import { DataTable } from '@/components/ui/data-table';
 import { Plus, Download } from 'lucide-react';
@@ -21,7 +21,7 @@ export default function GuestsPage() {
     const loadData = async () => {
         setLoading(true);
         try {
-            const result = await getMyInvitations();
+            const result = await getAllInvitations();
             setData(result);
         } catch (error) {
             console.error("Error fetching guests:", error);

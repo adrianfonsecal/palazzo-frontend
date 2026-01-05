@@ -1,25 +1,29 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getMyInvitations } from '@/lib/api';
+import { getAllInvitations, getAllGuests } from '@/lib/api';
 import GuestsPage from '../guests/page';
+import { useRouter } from 'next/navigation';
+
 
 
 export default function DashboardPage() {
-    const [invitations, setInvitations] = useState([]);
+    const [families, setFamilies] = useState([]);
+    const [guests, setGuests] = useState([]);
     const [loading, setLoading] = useState(true);
-    
-    
-
-
+    const router = useRouter();
+        
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const data = await getMyInvitations();
-                setInvitations(data);
+                const familiesData = await getAllInvitations();
+                setFamilies(familiesData);
+                const guestsData = await getAllGuests();
+                setGuests(guestsData);
             } catch (error) {
                 console.error("Error cargando invitaciones", error);
-                // Si falla (ej. token expirado), podrías redirigir al login
+                router.push('/login');
+                router.refresh();
             } finally {
                 setLoading(false);
             }
@@ -32,21 +36,24 @@ export default function DashboardPage() {
         return <div className="p-8 text-center">Cargando tu boda...</div>;
     }
 
-    // Cálculos simples para las estadísticas
-    const totalInvitations = invitations.length;
-    const confirmed = invitations.filter(i => i.status === 'COMPLETED' || i.status === 'confirmed').length; // Ajusta según tus status
+    const totalFamilies = families.length;
+    const totalGuests = guests.length;
+    const totalInvitations = totalGuests + totalFamilies;
+    const confirmed = guests.filter(i => i.attendance === 'ACCEPTED').length;
 
     return (
         <>
             <div className="min-h-screen bg-gray-50">
-                {/* Navbar Simple */}
 
                 <main className="max-w-7xl mx-auto p-6">
 
-                    {/* Tarjetas de Resumen */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                             <h3 className="text-gray-500 text-sm font-medium uppercase">Total Familias</h3>
+                            <p className="text-3xl font-bold text-slate-900 mt-2">{totalFamilies}</p>
+                        </div>
+                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                            <h3 className="text-gray-500 text-sm font-medium uppercase">Total Invitados</h3>
                             <p className="text-3xl font-bold text-slate-900 mt-2">{totalInvitations}</p>
                         </div>
                         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -59,7 +66,6 @@ export default function DashboardPage() {
                         </div>
                     </div>
 
-                    {/* Tabla de Invitados (Versión simple) */}
                     <GuestsPage />
                 </main>
             </div>
