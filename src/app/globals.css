@@ -1,26 +1,149 @@
 @import "tailwindcss";
 
+/* --- CONFIGURACIÓN DE BRANDING --- */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+    --color-carbonblack: #1f1f1f;
+    /* Negro carbón - Primario */
+    --color-sand: #c1ad76;
+    /* Arena - Secundario */
+    --color-coolsteel: #819595;
+    /* Acero frío - Acento */
+    --color-ashgrey: #c9cdc2;
+    /* Gris Niebla - Fondos Claros */
+    --color-charcoal: #4d4d4d;
+    /* Carbón - Tarjetas/Cajas */
+    --color-white: #ffffff;
+    /* White - Tarjetas/Cajas */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Fuentes Personalizadas */
+.font-serif-heading {
+    /* font-family: 'Playfair Display', serif; */
+    font-family: 'Cinzel', 'medium 500';
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.font-sans-body {
+    font-family: 'Lato', sans-serif;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.font-script {
+    font-family: 'Great Vibes', cursive;
+}
+
+/* Clases de utilidad para colores de la marca */
+.bg-carbonblack {
+    background-color: var(--color-carbonblack);
+}
+
+.bg-sand {
+    background-color: var(--color-sand);
+}
+
+.bg-ashgrey {
+    background-color: var(--color-ashgrey);
+}
+
+.bg-charcoal {
+    background-color: var(--color-charcoal);
+}
+
+.bg-white {
+    background-color: var(--color-white);
+}
+
+.text-carbonblack {
+    color: var(--color-carbonblack);
+}
+
+.text-sand {
+    color: var(--color-sand);
+}
+
+.text-coolsteel {
+    color: var(--color-coolsteel);
+}
+
+.text-ashgrey {
+    color: var(--color-ashgrey);
+}
+
+.text-charcoal {
+    color: var(--color-charcoal);
+}
+
+.border-sand {
+    border-color: var(--color-sand);
+}
+
+/* Botón Principal (Estilo Oro Rosado) */
+.btn-primary {
+    background-color: var(--color-charcoal);
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-sand);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 163, 129, 0.4);
+}
+
+/* Botón Secundario (Outline) */
+.btn-secondary {
+    border: 1px solid var(--color-coolsteel);
+    color: var(--color-coolsteel);
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-coolsteel);
+    color: var(--color-carbonblack);
+}
+
+/* Botón Cotizar (Outline) */
+.btn-alternative {
+    border: 1px solid var(--color-ashgrey);
+    color: var(--color-coolsteel);
+    transition: all 0.3s ease;
+}
+
+.btn-alternative:hover {
+    background-color: var(--color-ashgrey);
+    color: var(--color-white);
+}
+
+/* Animaciones */
+.fade-in-section {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    will-change: opacity, visibility;
+}
+
+.fade-in-section.is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+/* Degradado sutil para el Hero */
+.hero-overlay {
+    background: linear-gradient(135deg, rgba(193, 173, 118, 0.95) 0%, rgba(255, 248, 229, 0.9) 100%);
+    /* background: linear-gradient(45deg, #c1ad76,#fff8e5); */
+}
+
+/* Tamaño del logotipo */
+
+.website-logo {
+    width: 150px;
+}
+
+/* Efecto Hover en las tarjetas de ejemplo */
+
+.portfolio-card:hover .portfolio-img {
+    transform: scale(1.1);
+}
+
+.portfolio-card:hover .portfolio-overlay {
+    opacity: 1;
 }
