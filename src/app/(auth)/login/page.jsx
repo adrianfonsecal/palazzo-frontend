@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { login } from '@/lib/api';
 import { setToken } from '@/lib/auth';
+import Link from 'next/link';
 
 
 export default function LoginPage() {
@@ -66,6 +67,14 @@ export default function LoginPage() {
                                 placeholder="••••••••"
                                 required
                             />
+                        </div>
+                        
+                        <div className='inline'>
+                            <p>¿No tienes una cuenta? </p>
+                            <Link href="/register"
+                            className="text-sm text-slate-600 hover:text-slate-800 mb-4" >
+                            Regístrate aquí.
+                            </Link>
                         </div>
 
                         <button

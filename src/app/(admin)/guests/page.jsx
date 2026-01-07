@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getAllInvitations } from '@/lib/api';
+import { getAllInvitations, sendWhatsappInvitation } from '@/lib/api';
 import { getColumns } from './columns';
 import { DataTable } from '@/components/ui/data-table';
-import { Plus, Download } from 'lucide-react';
+import { Plus, Upload, MessageCircle } from 'lucide-react';
 import Modal from '@/components/ui/modal';
 import ManageGuestsModal from '@/components/modals/manage-guests-modal';
 import CreateInvitationForm from '@/components/forms/create-invitation-form';
+import { importGuestsCSV } from '@/lib/api'; // <--- Importamos la función nueva
 
 export default function GuestsPage() {
     const [data, setData] = useState([]);
@@ -17,6 +18,11 @@ export default function GuestsPage() {
 
     const [selectedInvitation, setSelectedInvitation] = useState(null);
     const [isManageOpen, setIsManageOpen] = useState(false);
+
+    const [isImporting, setIsImporting] = useState(false);
+
+    const [rowSelection, setRowSelection] = useState({});
+    const [isSending, setIsSending] = useState(false);
 
     const loadData = async () => {
         setLoading(true);
@@ -52,6 +58,64 @@ export default function GuestsPage() {
         loadData();
     };
 
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validaciones básicas de frontend
+        const validTypes = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+        if (!validTypes.includes(file.type) && !file.name.endsWith('.csv')) {
+            alert("Por favor sube un archivo CSV o Excel válido.");
+            return;
+        }
+
+        setIsImporting(true);
+        try {
+            await importGuestsCSV(file);
+
+            // Éxito
+            alert("Importación iniciada. Los invitados aparecerán en breve.");
+            // Opcional: toast.success("Importación en proceso...");
+
+            // Limpiamos el input para permitir subir el mismo archivo si es necesario corregirlo
+            e.target.value = null;
+
+            // Recargamos los datos (aunque como es asíncrono, puede que tarden unos segundos en aparecer)
+            setTimeout(() => loadData(), 2000);
+
+        } catch (error) {
+            console.error("Error importando:", error);
+            alert("Hubo un error al subir el archivo.");
+        } finally {
+            setIsImporting(false);
+        }
+    };
+
+    const handleSendBlast = async () => {
+        const selectedUuids = Object.keys(rowSelection);
+
+        if (selectedUuids.length === 0) return;
+
+        const confirm = window.confirm(`¿Estás seguro de enviar WhatsApps a ${selectedUuids.length} familias?`);
+        if (!confirm) return;
+
+        setIsSending(true);
+        try {
+            await sendWhatsappInvitation(selectedUuids);
+            alert("Mensajes enviados a la cola de procesamiento.");
+
+            setRowSelection({});
+            loadData();
+        } catch (error) {
+            console.error(error);
+            alert("Hubo un error al enviar los mensajes.");
+        } finally {
+            setIsSending(false);
+        }
+    };
+
+    const selectedCount = Object.keys(rowSelection).length;
+
     return (
         <div className="p-8 max-w-7xl mx-auto space-y-8 bg-slate-100">
 
@@ -64,10 +128,39 @@ export default function GuestsPage() {
                 </div>
 
                 <div className="flex gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 font-medium text-sm transition shadow-sm">
-                        <Download size={16} />
-                        Exportar CSV
+                    <label
+                        htmlFor="fileUpload"
+                        className={`flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 rounded-md text-slate-700 font-medium text-sm transition shadow-sm cursor-pointer hover:bg-slate-50 ${isImporting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                        {isImporting ? (
+                            <span className="animate-spin">⏳</span>
+                        ) : (
+                            <Upload size={16} />
+                        )}
+                        {isImporting ? 'Procesando...' : 'Importar CSV'}
+                    </label>
+
+                    <input
+                        type="file"
+                        id="fileUpload"
+                        accept=".csv, .xls, .xlsx"
+                        onChange={handleFileUpload}
+                        disabled={isImporting}
+                        className="hidden"
+                    />
+                    <button
+                        onClick={handleSendBlast}
+                        disabled={isSending}
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-sm transition shadow-sm disabled:opacity-50"
+                    >
+                        {isSending ? (
+                            <span className="animate-spin">⏳</span>
+                        ) : (
+                            <MessageCircle size={16} />
+                        )}
+                        Enviar a ({selectedCount})
                     </button>
+
 
                     {/* CONECTAMOS EL BOTÓN DE APERTURA */}
                     <button
@@ -85,7 +178,12 @@ export default function GuestsPage() {
                     <p className="text-slate-400 animate-pulse">Cargando lista...</p>
                 </div>
             ) : (
-                <DataTable columns={columns} data={data} />
+                <DataTable 
+                    columns={columns} 
+                    data={data}
+                    rowSelection={rowSelection}      
+                    setRowSelection={setRowSelection}
+                />
             )}
 
             {/* RENDERIZAMOS EL MODAL */}

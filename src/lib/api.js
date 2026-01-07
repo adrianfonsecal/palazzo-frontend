@@ -38,6 +38,15 @@ export const login = async (username, password) => {
   return data; // { access: '...', refresh: '...' }
 }
 
+export const createUser = async (username, password) => {
+  // Hacemos POST a la vista TokenObtainPairView de Django
+  const { data } = await api.post('/token/', {
+    username,
+    password,
+  });
+  return data; // { access: '...', refresh: '...' }
+}
+
 export async function getInvitationByUuid(uuid) {
   try {
     // Importante: cache: 'no-store' para que siempre traiga datos frescos (útil para ver cambios en RSVP)
@@ -84,6 +93,30 @@ export const createGuest = async ( data ) => {
 
 export const deleteGuest = async ( id ) => {
   await api.delete(`/admin/guests/${id}/`);
+};
+
+export const sendWhatsappInvitation = async ( invitationUuidList ) => {
+  const response = await api.post(`/admin/invitations/send_blast/`, {
+    invitation_ids: invitationUuidList
+  });
+  return response.data;
+}
+
+export const importGuestsCSV = async (file, weddingId = null) => {
+    const formData = new FormData();
+    formData.append('file', file); // 'file' debe coincidir con request.FILES.get('file') en Django
+    // Si pasamos un ID (útil para pruebas de admin), lo agregamos al envío
+    weddingId = '2'
+    if (weddingId) {
+        formData.append('wedding_id', weddingId);
+    }
+
+    const response = await api.post('/admin/invitations/import_csv/', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data', // Crucial para archivos
+        },
+    });
+    return response.data;
 };
 
 export default api;

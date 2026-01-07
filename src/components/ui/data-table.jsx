@@ -15,8 +15,12 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-export function DataTable({ columns, data }) {
-    const [rowSelection, setRowSelection] = useState({});
+export function DataTable({ 
+    columns, 
+    data, 
+    rowSelection = {}, 
+    setRowSelection = () => {}
+ }) {
     const [pagination, setPagination] = useState({
         pageIndex: 0,
         pageSize: 10,
@@ -32,18 +36,11 @@ export function DataTable({ columns, data }) {
         enableRowSelection: true, //enable row selection for all rows
         // enableRowSelection: row => row.original.age > 18, // or enable row selection conditionally per row
         onRowSelectionChange: setRowSelection,
-        getRowId: (originalRow, index) => {
-            return originalRow.uuid; // use 'id' property as row ID
-        },
+        getRowId: (originalRow) => originalRow.uuid,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         onPaginationChange: setPagination,
     });
-    // Para obtener los objetos completos de la data seleccionada:
-    const selectedGuests = table.getSelectedRowModel().flatRows.map(row => row.original);
-
-    console.log("Enviar WhatsApp a:", selectedGuests);
-
 
     return (
         <div className="rounded-md border border-gray-200 overflow-hidden">
