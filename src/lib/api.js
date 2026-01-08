@@ -38,12 +38,9 @@ export const login = async (username, password) => {
 
 // Funcion Create User
 
-export const createUser = async (username, password) => {
+export const createUser = async (payload) => {
   // Hacemos POST a la vista TokenObtainPairView de Django
-  const { data } = await api.post('/token/', {
-    username,
-    password,
-  });
+  const { data } = await api.post('/register/', payload);
   return data;
 }
 
@@ -104,8 +101,9 @@ export const getAllGuests = async () => {
   return data;
 };
 
-export const updateGuest = async ( id ) => {
-  await api.put(`/admin/guests/${id}/`);
+export const updateGuest = async (id, data) => {
+  const response = await api.patch(`/admin/guests/${id}/`, data);
+  return response.data;
 };
 
 export const deleteGuest = async ( id ) => {

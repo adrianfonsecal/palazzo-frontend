@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Trash2, Baby, User, Edit } from 'lucide-react';
-import { createGuest, deleteGuest } from '@/lib/api';
+import { X, Trash2, Baby, User, Edit, Check } from 'lucide-react';
+import { createGuest, deleteGuest, updateGuest } from '@/lib/api';
 import Modal from '@/components/ui/modal';
 
 export default function ManageGuestsModal({ isOpen, onClose, invitation, onUpdate }) {
@@ -10,6 +10,8 @@ export default function ManageGuestsModal({ isOpen, onClose, invitation, onUpdat
   const [isChild, setIsChild] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [editingId, setEditingId] = useState(null); // ID del guest que se está editando
+  const [tempName, setTempName] = useState('');     // Valor temporal del input
   // Si no hay invitación seleccionada, no renderizamos nada útil
   if (!invitation) return null;
 
@@ -64,6 +66,49 @@ export default function ManageGuestsModal({ isOpen, onClose, invitation, onUpdat
     }
   };
 
+  // --- INICIAR EDICIÓN ---
+  const startEditing = (guest) => {
+    setEditingId(guest.id);
+    setTempName(guest.full_name); // Prellenamos con el nombre actual
+  };
+
+  // --- CANCELAR EDICIÓN ---
+  const cancelEditing = () => {
+    setEditingId(null);
+    setTempName('');
+  };
+
+  // --- GUARDAR EDICIÓN ---
+  const saveEditing = async (guestId) => {
+    if (!tempName.trim()) return; // No guardar vacíos
+
+    const originalGuest = localGuests.find(g => g.id === guestId);
+    if (originalGuest.full_name === tempName) {
+        cancelEditing();
+        return;
+    }
+
+    try {
+
+        await updateGuest(guestId, { full_name: tempName });
+
+        setLocalGuests(localGuests.map(g => 
+            g.id === guestId ? { ...g, full_name: tempName } : g
+        ));
+        
+        cancelEditing();
+        onUpdate();
+    } catch (error) {
+        console.error(error);
+        alert("Error al actualizar el nombre");
+    }
+  };
+
+  const handleKeyDown = (e, guestId) => {
+      if (e.key === 'Enter') saveEditing(guestId);
+      if (e.key === 'Escape') cancelEditing();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -72,7 +117,7 @@ export default function ManageGuestsModal({ isOpen, onClose, invitation, onUpdat
     >
       <div className="space-y-6">
 
-        {/* FORMULARIO DE AGREGAR */}
+        {/* FORMULARIO DE AGREGAR (Sin cambios) */}
         <form onSubmit={handleAddGuest} className="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-3">
           <p className="text-xs font-bold text-slate-500 uppercase">Agregar Integrante</p>
           <div className="flex gap-2">
@@ -82,7 +127,7 @@ export default function ManageGuestsModal({ isOpen, onClose, invitation, onUpdat
               className="flex-1 px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              autoFocus
+              // Quitamos autoFocus de aquí para que no pelee con el edit
             />
             <button
               type="submit"
@@ -115,34 +160,71 @@ export default function ManageGuestsModal({ isOpen, onClose, invitation, onUpdat
             ) : (
               localGuests.map((guest) => (
                 <div key={guest.id} className="flex justify-between items-center p-2 bg-white border border-slate-100 rounded shadow-sm hover:border-slate-300 transition-colors">
-                  <div className="flex items-center gap-3">
-                    {guest.is_child ? (
-                      <div className="bg-pink-100 p-1.5 rounded-full text-pink-600" title="Niño">
-                        <Baby size={16} />
+                  
+                  {/* LÓGICA CONDICIONAL: ¿SE ESTÁ EDITANDO ESTE GUEST? */}
+                  {editingId === guest.id ? (
+                    // --- MODO EDICIÓN ---
+                    <div className="flex flex-1 items-center gap-2 animate-in fade-in duration-200">
+                        <input 
+                            type="text" 
+                            value={tempName}
+                            onChange={(e) => setTempName(e.target.value)}
+                            onKeyDown={(e) => handleKeyDown(e, guest.id)}
+                            autoFocus
+                            className="flex-1 px-2 py-1 text-sm border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        />
+                        <button 
+                            onClick={() => saveEditing(guest.id)}
+                            className="text-green-600 hover:bg-green-50 p-1 rounded transition"
+                            title="Guardar (Enter)"
+                        >
+                            <Check size={18} />
+                        </button>
+                        <button 
+                            onClick={cancelEditing}
+                            className="text-red-500 hover:bg-red-50 p-1 rounded transition"
+                            title="Cancelar (Esc)"
+                        >
+                            <X size={18} />
+                        </button>
+                    </div>
+                  ) : (
+                    // --- MODO VISUALIZACIÓN ---
+                    <>
+                      <div className="flex items-center gap-3">
+                        {guest.is_child ? (
+                          <div className="bg-pink-100 p-1.5 rounded-full text-pink-600" title="Niño">
+                            <Baby size={16} />
+                          </div>
+                        ) : (
+                          <div className="bg-slate-100 p-1.5 rounded-full text-slate-600" title="Adulto">
+                            <User size={16} />
+                          </div>
+                        )}
+                        <span className="text-sm font-medium text-slate-800">{guest.full_name}</span>
                       </div>
-                    ) : (
-                      <div className="bg-slate-100 p-1.5 rounded-full text-slate-600" title="Adulto">
-                        <User size={16} />
+                      
+                      <div className="flex items-center gap-2">
+                        {/* Botón Editar */}
+                        <button
+                          onClick={() => startEditing(guest)} // <--- Inicia la edición
+                          className="text-slate-300 hover:text-blue-500 transition-colors p-1"
+                          title="Editar nombre"
+                        >
+                          <Edit size={16} />
+                        </button>
+                        
+                        {/* Botón Eliminar */}
+                        <button
+                          onClick={() => handleDeleteGuest(guest.id)}
+                          className="text-slate-300 hover:text-red-500 transition-colors p-1"
+                          title="Eliminar"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
-                    )}
-                    <span className="text-sm font-medium text-slate-800">{guest.full_name}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleDeleteGuest(guest.id)}
-                      className="text-slate-300 hover:text-red-500 transition-colors p-1"
-                      title="Eliminar"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteGuest(guest.id)}
-                      className="text-slate-300 hover:text-blue-500 transition-colors p-1"
-                      title="Actualizar"
-                    >
-                      <Edit size={16} />
-                    </button>
-                  </div>
+                    </>
+                  )}
                 </div>
               ))
             )}
