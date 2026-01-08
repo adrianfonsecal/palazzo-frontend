@@ -1,6 +1,6 @@
 'use client';
 import IndeterminateCheckbox from '@/components/ui/indeterminate-checkbox';
-import { MoreHorizontal, Copy, Edit, Trash } from 'lucide-react';
+import { MoreHorizontal, Copy, Edit, PlusCircle } from 'lucide-react';
 
 // Esta función ayuda a asignar colores según el estado
 const getStatusColor = (status) => {
@@ -12,7 +12,7 @@ const getStatusColor = (status) => {
   }
 };
 
-export const getColumns = (onEdit) => {
+export const getColumns = (onAdd, onEdit) => {
 
 
   return [
@@ -57,9 +57,19 @@ export const getColumns = (onEdit) => {
       cell: ({ row }) => {
         const guests = row.original.guests || [];
         const confirmed = guests.filter(g => g.attendance === 'ACCEPTED').length;
+        const invitation = row.original;
         return (
-          <div className="text-sm">
-            <span className="font-bold">{confirmed}</span> / {guests.length}
+          <div className="flex items-center gap-2">
+            <div className="text-sm">
+              <span className="font-bold">{confirmed}</span> / {guests.length}
+            </div>
+            <button
+              onClick={() => onAdd(invitation)}
+              className="p-2 hover:bg-slate-100 rounded text-blue-600"
+              title="Gestionar Invitados"
+            >
+              <PlusCircle size={16} />
+            </button>
           </div>
         );
       }
@@ -82,19 +92,8 @@ export const getColumns = (onEdit) => {
       cell: ({ row }) => {
         const invitation = row.original;
 
-        const copyLink = () => {
-          const link = `${window.location.origin}/invitacion/${invitation.uuid}`;
-          navigator.clipboard.writeText(link);
-          alert('Enlace copiado al portapapeles'); // Podrías usar un Toast aquí
-        };
-
         return (
           <div className="flex items-center gap-2">
-            <button onClick={copyLink} className="p-2 hover:bg-slate-100 rounded text-slate-500">
-              <Copy size={16} />
-            </button>
-
-            {/* BOTÓN EDITAR CONECTADO */}
             <button
               onClick={() => onEdit(invitation)}
               className="p-2 hover:bg-slate-100 rounded text-blue-600"
@@ -111,16 +110,30 @@ export const getColumns = (onEdit) => {
       accessorKey: 'uuid',
       header: 'Link',
       cell: ({ row }) => {
-        const uuid = row.getValue('uuid');
+        const invitation = row.original;
+
+        const copyLink = () => {
+          const link = `${window.location.origin}/invitacion/${invitation.uuid}`;
+          navigator.clipboard.writeText(link);
+          alert('Enlace copiado al portapapeles'); // Podrías usar un Toast aquí
+        };
         return (
-          <a
-            href={`/invitacion/${uuid}`}
-            target="_blank"
-            rel="noreferrer"
-            className="text-sm text-blue-600 hover:underline"
-          >
-            Ver Invitación
-          </a>
+          <>
+            <a
+              href={`/invitacion/${invitation.uuid}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Ver Invitación
+            </a>
+
+            <div className="flex items-center gap-2">
+              <button onClick={copyLink} className="p-2 hover:bg-slate-100 rounded text-slate-500">
+                <Copy size={16} />
+              </button>
+            </div>
+          </>
         );
       },
     }

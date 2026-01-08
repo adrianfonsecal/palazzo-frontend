@@ -82,7 +82,7 @@ export const getAllInvitations = async () => {
 };
 
 export const updateInvitationByUuid = async (uuid, data) => {
-  const response = await api.put(`/admin/invitations/${uuid}/`, data);
+  const response = await api.patch(`/admin/invitations/${uuid}/`, data);
   return response.data;
 };
 
@@ -105,7 +105,7 @@ export const getAllGuests = async () => {
 };
 
 export const updateGuest = async ( id ) => {
-  await api.delete(`/admin/guests/${id}/`);
+  await api.put(`/admin/guests/${id}/`);
 };
 
 export const deleteGuest = async ( id ) => {

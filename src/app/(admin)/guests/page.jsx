@@ -9,22 +9,25 @@ import Modal from '@/components/ui/modal';
 import ManageGuestsModal from '@/components/modals/manage-guests-modal';
 import CreateInvitationForm from '@/components/forms/create-invitation-form';
 import { importGuestsCSV } from '@/lib/api'; // <--- Importamos la función nueva
+import UpdateInvitationForm from '@/components/forms/update-invitation-form';
 
 export default function GuestsPage() {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const [selectedInvitation, setSelectedInvitation] = useState(null);
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
     const [isManageOpen, setIsManageOpen] = useState(false);
+
+    const [selectedInvitationAdd, setSelectedInvitationAdd] = useState(null);
+    const [selectedInvitationEdit, setSelectedInvitationEdit] = useState(null);
 
     const [isImporting, setIsImporting] = useState(false);
 
     const [rowSelection, setRowSelection] = useState({});
     const [isSending, setIsSending] = useState(false);
 
-    const [isDeleting, setIsDeleting] = useState(false); 
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const loadData = async () => {
         setLoading(true);
@@ -42,21 +45,39 @@ export default function GuestsPage() {
         loadData();
     }, []);
 
+
     const handleSuccessCreate = () => {
-        setIsModalOpen(false);
+        setIsCreateOpen(false); // Cerramos el de crear
+        loadData();
+    };
+
+    const handleSuccessUpdate = () => {
+        setIsEditOpen(false);   // Cerramos el de editar
+        setSelectedInvitationEdit(null); // Limpiamos la selección
         loadData();
     };
 
     const handleEdit = (invitation) => {
-        setSelectedInvitation(invitation);
+        setSelectedInvitationEdit(invitation);
+        setIsEditOpen(true); // <--- CORREGIDO: Usamos el setter correcto
+    };
+
+    const handleCloseEdit = () => {
+        setIsEditOpen(false);
+        setSelectedInvitationEdit(null);
+    };
+
+
+    const handleAdd = (invitation) => {
+        setSelectedInvitationAdd(invitation);
         setIsManageOpen(true);
     };
 
-    const columns = getColumns(handleEdit);
+    const columns = getColumns(handleAdd, handleEdit);
 
     const handleCloseManage = () => {
         setIsManageOpen(false);
-        setSelectedInvitation(null);
+        setSelectedInvitationAdd(null);
         loadData();
     };
 
@@ -120,7 +141,7 @@ export default function GuestsPage() {
         const selectedUuids = Object.keys(rowSelection);
         if (selectedUuids.length === 0) return;
 
-        const confirmMessage = selectedCount === 1 
+        const confirmMessage = selectedCount === 1
             ? "¿Estás seguro de eliminar esta invitación? Se borrarán también sus invitados."
             : `¿Estás seguro de eliminar las ${selectedCount} invitaciones seleccionadas? Esta acción no se puede deshacer.`;
 
@@ -129,7 +150,7 @@ export default function GuestsPage() {
         setIsDeleting(true);
         try {
             await deleteAllInvitations(selectedUuids);
-            
+
             // Éxito
             alert(`Se eliminaron ${selectedCount} registros correctamente.`);
             setRowSelection({}); // Limpiamos la selección
@@ -153,69 +174,68 @@ export default function GuestsPage() {
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">Invitados</h1>
                     <p className="text-slate-500 mt-1">
-                        {isSelectionActive 
-                            ? `${selectedCount} seleccionados` 
+                        {isSelectionActive
+                            ? `${selectedCount} seleccionados`
                             : "Gestiona tu lista de invitados y monitorea sus confirmaciones."}
                     </p>
                 </div>
 
                 {isSelectionActive ? (
-                        <>
-                            <button
-                                onClick={clearSelection}
-                                className="text-slate-500 hover:text-slate-700 text-sm font-medium mr-2"
-                            >
-                                Cancelar
-                            </button>
+                    <>
+                        <button
+                            onClick={clearSelection}
+                            className="text-slate-500 hover:text-slate-700 text-sm font-medium mr-2"
+                        >
+                            Cancelar
+                        </button>
 
-                            <button
-                                onClick={handleBulkDelete}
-                                disabled={isDeleting}
-                                className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 border border-red-200 rounded-md hover:bg-red-200 font-medium text-sm transition shadow-sm disabled:opacity-50"
-                            >
-                                {isDeleting ? <span className="animate-spin">⏳</span> : <Trash2 size={16} />}
-                                Borrar ({selectedCount})
-                            </button>
+                        <button
+                            onClick={handleBulkDelete}
+                            disabled={isDeleting}
+                            className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 border border-red-200 rounded-md hover:bg-red-200 font-medium text-sm transition shadow-sm disabled:opacity-50"
+                        >
+                            {isDeleting ? <span className="animate-spin">⏳</span> : <Trash2 size={16} />}
+                            Borrar ({selectedCount})
+                        </button>
 
-                            <button
-                                onClick={handleSendBlast} 
-                                disabled={isSending}
-                                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-sm transition shadow-sm disabled:opacity-50"
-                            >
-                                {isSending ? <span className="animate-spin">⏳</span> : <MessageCircle size={16} />}
-                                Enviar WhatsApp
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <label
-                                htmlFor="fileUpload"
-                                className={`flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 rounded-md text-slate-700 font-medium text-sm transition shadow-sm cursor-pointer hover:bg-slate-50 ${isImporting ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            >
-                                {isImporting ? <span className="animate-spin">⏳</span> : <Upload size={16} />}
-                                {isImporting ? 'Procesando...' : 'Importar CSV'}
-                            </label>
-                            
-                            <input
-                                type="file"
-                                id="fileUpload"
-                                accept=".csv, .xls, .xlsx"
-                                onChange={handleFileUpload}
-                                disabled={isImporting}
-                                className="hidden"
-                            />
+                        <button
+                            onClick={handleSendBlast}
+                            disabled={isSending}
+                            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-sm transition shadow-sm disabled:opacity-50"
+                        >
+                            {isSending ? <span className="animate-spin">⏳</span> : <MessageCircle size={16} />}
+                            Enviar WhatsApp
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <label
+                            htmlFor="fileUpload"
+                            className={`flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 rounded-md text-slate-700 font-medium text-sm transition shadow-sm cursor-pointer hover:bg-slate-50 ${isImporting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                            {isImporting ? <span className="animate-spin">⏳</span> : <Upload size={16} />}
+                            {isImporting ? 'Procesando...' : 'Importar CSV'}
+                        </label>
 
-                            <button
-                                onClick={() => setIsModalOpen(true)}
-                                className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800 font-medium text-sm transition shadow-sm"
-                            >
-                                <Plus size={16} />
-                                Nueva Invitación
-                            </button>
-                        </>
-                    )}
+                        <input
+                            type="file"
+                            id="fileUpload"
+                            accept=".csv, .xls, .xlsx"
+                            onChange={handleFileUpload}
+                            disabled={isImporting}
+                            className="hidden"
+                        />
 
-                
+                        <button
+                            onClick={() => setIsCreateOpen(true)} // <--- CORREGIDO
+                            className="..."
+                        >
+                            <Plus size={16} /> Nueva Invitación
+                        </button>
+                    </>
+                )}
+
+
             </div>
 
             {loading ? (
@@ -223,28 +243,41 @@ export default function GuestsPage() {
                     <p className="text-slate-400 animate-pulse">Cargando lista...</p>
                 </div>
             ) : (
-                <DataTable 
-                    columns={columns} 
+                <DataTable
+                    columns={columns}
                     data={data}
-                    rowSelection={rowSelection}      
+                    rowSelection={rowSelection}
                     setRowSelection={setRowSelection}
                 />
             )}
 
             {/* RENDERIZAMOS EL MODAL */}
             <Modal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                isOpen={isCreateOpen} // <--- Variable dedicada
+                onClose={() => setIsCreateOpen(false)}
                 title="Agregar Nueva Familia"
             >
                 <CreateInvitationForm onSuccess={handleSuccessCreate} />
             </Modal>
+
+            {selectedInvitationEdit && (
+                <Modal
+                    isOpen={isEditOpen} 
+                    onClose={handleCloseEdit}
+                    title="Actualizar Invitación"
+                >
+                    <UpdateInvitationForm 
+                        onSuccess={handleSuccessUpdate} 
+                        data={selectedInvitationEdit} 
+                    />
+                </Modal>
+            )}
             {
-                selectedInvitation && (
+                selectedInvitationAdd && (
                     <ManageGuestsModal
                         isOpen={isManageOpen}
                         onClose={handleCloseManage}
-                        invitation={selectedInvitation}
+                        invitation={selectedInvitationAdd}
                         onUpdate={loadData} // Recargar data si agregaron guests
                     />
                 )
