@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Trash2, Baby, User } from 'lucide-react';
+import { X, Trash2, Baby, User, Edit } from 'lucide-react';
 import { createGuest, deleteGuest } from '@/lib/api';
 import Modal from '@/components/ui/modal';
 
@@ -127,14 +127,22 @@ export default function ManageGuestsModal({ isOpen, onClose, invitation, onUpdat
                     )}
                     <span className="text-sm font-medium text-slate-800">{guest.full_name}</span>
                   </div>
-
-                  <button
-                    onClick={() => handleDeleteGuest(guest.id)}
-                    className="text-slate-300 hover:text-red-500 transition-colors p-1"
-                    title="Eliminar"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleDeleteGuest(guest.id)}
+                      className="text-slate-300 hover:text-red-500 transition-colors p-1"
+                      title="Eliminar"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteGuest(guest.id)}
+                      className="text-slate-300 hover:text-blue-500 transition-colors p-1"
+                      title="Actualizar"
+                    >
+                      <Edit size={16} />
+                    </button>
+                  </div>
                 </div>
               ))
             )}

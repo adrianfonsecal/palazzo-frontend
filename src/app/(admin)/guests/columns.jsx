@@ -118,7 +118,8 @@ export const getColumns = (onAdd, onEdit) => {
           alert('Enlace copiado al portapapeles'); // Podrías usar un Toast aquí
         };
         return (
-          <>
+
+          <div className="flex items-center gap-2">
             <a
               href={`/invitacion/${invitation.uuid}`}
               target="_blank"
@@ -127,13 +128,10 @@ export const getColumns = (onAdd, onEdit) => {
             >
               Ver Invitación
             </a>
-
-            <div className="flex items-center gap-2">
-              <button onClick={copyLink} className="p-2 hover:bg-slate-100 rounded text-slate-500">
-                <Copy size={16} />
-              </button>
-            </div>
-          </>
+            <button onClick={copyLink} className="p-2 hover:bg-slate-100 rounded text-slate-500">
+              <Copy size={16} />
+            </button>
+          </div>
         );
       },
     }
