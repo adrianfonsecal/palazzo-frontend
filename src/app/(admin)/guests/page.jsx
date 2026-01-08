@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getAllInvitations, sendWhatsappInvitation } from '@/lib/api';
+import { deleteAllInvitations, getAllInvitations, sendWhatsappInvitation } from '@/lib/api';
 import { getColumns } from './columns';
 import { DataTable } from '@/components/ui/data-table';
-import { Plus, Upload, MessageCircle } from 'lucide-react';
+import { Plus, Upload, MessageCircle, Trash2 } from 'lucide-react';
 import Modal from '@/components/ui/modal';
 import ManageGuestsModal from '@/components/modals/manage-guests-modal';
 import CreateInvitationForm from '@/components/forms/create-invitation-form';
@@ -23,6 +23,8 @@ export default function GuestsPage() {
 
     const [rowSelection, setRowSelection] = useState({});
     const [isSending, setIsSending] = useState(false);
+
+    const [isDeleting, setIsDeleting] = useState(false); 
 
     const loadData = async () => {
         setLoading(true);
@@ -114,63 +116,106 @@ export default function GuestsPage() {
         }
     };
 
+    const handleBulkDelete = async () => {
+        const selectedUuids = Object.keys(rowSelection);
+        if (selectedUuids.length === 0) return;
+
+        const confirmMessage = selectedCount === 1 
+            ? "¿Estás seguro de eliminar esta invitación? Se borrarán también sus invitados."
+            : `¿Estás seguro de eliminar las ${selectedCount} invitaciones seleccionadas? Esta acción no se puede deshacer.`;
+
+        if (!window.confirm(confirmMessage)) return;
+
+        setIsDeleting(true);
+        try {
+            await deleteAllInvitations(selectedUuids);
+            
+            // Éxito
+            alert(`Se eliminaron ${selectedCount} registros correctamente.`);
+            setRowSelection({}); // Limpiamos la selección
+            loadData(); // Recargamos la tabla
+        } catch (error) {
+            console.error(error);
+            alert("Hubo un error al intentar eliminar los registros.");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     const selectedCount = Object.keys(rowSelection).length;
+    const isSelectionActive = selectedCount > 0;
+    const clearSelection = () => setRowSelection({});
 
     return (
         <div className="p-8 max-w-7xl mx-auto space-y-8 bg-slate-100">
 
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 h-16">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">Invitados</h1>
                     <p className="text-slate-500 mt-1">
-                        Gestiona tu lista de invitados y monitorea sus confirmaciones.
+                        {isSelectionActive 
+                            ? `${selectedCount} seleccionados` 
+                            : "Gestiona tu lista de invitados y monitorea sus confirmaciones."}
                     </p>
                 </div>
 
-                <div className="flex gap-3">
-                    <label
-                        htmlFor="fileUpload"
-                        className={`flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 rounded-md text-slate-700 font-medium text-sm transition shadow-sm cursor-pointer hover:bg-slate-50 ${isImporting ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                        {isImporting ? (
-                            <span className="animate-spin">⏳</span>
-                        ) : (
-                            <Upload size={16} />
-                        )}
-                        {isImporting ? 'Procesando...' : 'Importar CSV'}
-                    </label>
+                {isSelectionActive ? (
+                        <>
+                            <button
+                                onClick={clearSelection}
+                                className="text-slate-500 hover:text-slate-700 text-sm font-medium mr-2"
+                            >
+                                Cancelar
+                            </button>
 
-                    <input
-                        type="file"
-                        id="fileUpload"
-                        accept=".csv, .xls, .xlsx"
-                        onChange={handleFileUpload}
-                        disabled={isImporting}
-                        className="hidden"
-                    />
-                    <button
-                        onClick={handleSendBlast}
-                        disabled={isSending}
-                        className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-sm transition shadow-sm disabled:opacity-50"
-                    >
-                        {isSending ? (
-                            <span className="animate-spin">⏳</span>
-                        ) : (
-                            <MessageCircle size={16} />
-                        )}
-                        Enviar a ({selectedCount})
-                    </button>
+                            <button
+                                onClick={handleBulkDelete}
+                                disabled={isDeleting}
+                                className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 border border-red-200 rounded-md hover:bg-red-200 font-medium text-sm transition shadow-sm disabled:opacity-50"
+                            >
+                                {isDeleting ? <span className="animate-spin">⏳</span> : <Trash2 size={16} />}
+                                Borrar ({selectedCount})
+                            </button>
 
+                            <button
+                                onClick={handleSendBlast} 
+                                disabled={isSending}
+                                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-sm transition shadow-sm disabled:opacity-50"
+                            >
+                                {isSending ? <span className="animate-spin">⏳</span> : <MessageCircle size={16} />}
+                                Enviar WhatsApp
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <label
+                                htmlFor="fileUpload"
+                                className={`flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 rounded-md text-slate-700 font-medium text-sm transition shadow-sm cursor-pointer hover:bg-slate-50 ${isImporting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                {isImporting ? <span className="animate-spin">⏳</span> : <Upload size={16} />}
+                                {isImporting ? 'Procesando...' : 'Importar CSV'}
+                            </label>
+                            
+                            <input
+                                type="file"
+                                id="fileUpload"
+                                accept=".csv, .xls, .xlsx"
+                                onChange={handleFileUpload}
+                                disabled={isImporting}
+                                className="hidden"
+                            />
 
-                    {/* CONECTAMOS EL BOTÓN DE APERTURA */}
-                    <button
-                        onClick={() => setIsModalOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800 font-medium text-sm transition shadow-sm"
-                    >
-                        <Plus size={16} />
-                        Nueva Invitación
-                    </button>
-                </div>
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800 font-medium text-sm transition shadow-sm"
+                            >
+                                <Plus size={16} />
+                                Nueva Invitación
+                            </button>
+                        </>
+                    )}
+
+                
             </div>
 
             {loading ? (

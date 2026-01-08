@@ -18,10 +18,8 @@ api.interceptors.request.use((config) => {
   // solo inyectamos token si estamos en el navegador (cliente)
   if (typeof window !== 'undefined') {
     const token = getToken();
-    //const csrftoken = cookie.get('csrftoken');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
-      //config.headers['X-CSRFToken'] = csrftoken;
     }
   }
   return config;
@@ -38,14 +36,22 @@ export const login = async (username, password) => {
   return data; // { access: '...', refresh: '...' }
 }
 
+// Funcion Create User
+
 export const createUser = async (username, password) => {
   // Hacemos POST a la vista TokenObtainPairView de Django
   const { data } = await api.post('/token/', {
     username,
     password,
   });
-  return data; // { access: '...', refresh: '...' }
+  return data;
 }
+
+// Invitation(s) API CRUD
+export const createInvitation = async (data) => {
+  const response = await api.post('/admin/invitations/', data);
+  return response.data;
+};
 
 export async function getInvitationByUuid(uuid) {
   try {
@@ -75,25 +81,38 @@ export const getAllInvitations = async () => {
   return data;
 };
 
-export const getAllGuests = async () => {
-  // El interceptor que configuramos ya inyectará el Token aquí automáticamente
-  const { data } = await api.get('/admin/guests/');
-  return data;
-};
-
-export const createInvitation = async (data) => {
-  const response = await api.post('/admin/invitations/', data);
+export const updateInvitationByUuid = async (uuid, data) => {
+  const response = await api.put(`/admin/invitations/${uuid}/`, data);
   return response.data;
 };
+
+export const deleteAllInvitations = async (data) => {
+  await api.post('/admin/invitations/bulk_delete/', { 
+      invitation_uuids: data 
+  });
+};
+
+// Guest API CRUD
 
 export const createGuest = async ( data ) => {
   const response = await api.post('/admin/guests/', data);
   return response.data;
 };
 
+export const getAllGuests = async () => {
+  const { data } = await api.get('/admin/guests/');
+  return data;
+};
+
+export const updateGuest = async ( id ) => {
+  await api.delete(`/admin/guests/${id}/`);
+};
+
 export const deleteGuest = async ( id ) => {
   await api.delete(`/admin/guests/${id}/`);
 };
+
+// Envío masivo de invitaciones por WhatsApp
 
 export const sendWhatsappInvitation = async ( invitationUuidList ) => {
   const response = await api.post(`/admin/invitations/send_blast/`, {
@@ -101,6 +120,8 @@ export const sendWhatsappInvitation = async ( invitationUuidList ) => {
   });
   return response.data;
 }
+
+// Importar invitados desde CSV
 
 export const importGuestsCSV = async (file, weddingId = null) => {
     const formData = new FormData();
