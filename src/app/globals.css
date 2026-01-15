@@ -1,149 +1,241 @@
-@import "tailwindcss";
+/* 1. IMPORTS DE FUENTES (Siempre arriba) */
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Lato&family=Great Vibes&display=swap');
 
-/* --- CONFIGURACIÓN DE BRANDING --- */
+/* 2. DIRECTIVAS DE TAILWIND (Sintaxis estándar v3) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-    --color-carbonblack: #1f1f1f;
-    /* Negro carbón - Primario */
-    --color-sand: #c1ad76;
-    /* Arena - Secundario */
-    --color-coolsteel: #819595;
-    /* Acero frío - Acento */
-    --color-ashgrey: #c9cdc2;
-    /* Gris Niebla - Fondos Claros */
-    --color-charcoal: #4d4d4d;
-    /* Carbón - Tarjetas/Cajas */
-    --color-white: #ffffff;
-    /* White - Tarjetas/Cajas */
+/* 3. TU CSS FUSIONADO */
+@layer base {
+
+    /* --- ZONA 1: PALAZZO CRM (Original) --- */
+    :root {
+        --color-carbonblack: #1f1f1f;
+        --color-sand: #c1ad76;
+        --color-coolsteel: #819595;
+        --color-ashgrey: #c9cdc2;
+        --color-charcoal: #4d4d4d;
+        --color-white: #ffffff;
+
+        /* Variables predeterminadas para que el CRM no se rompa si usa estas claves */
+        --background: 0 0% 100%;
+        --foreground: 0 0% 12%;
+    }
+
+
+    /* Fuentes Personalizadas */
+    .font-serif-heading {
+        /* font-family: 'Playfair Display', serif; */
+        font-family: 'Cinzel', 'medium 500';
+    }
+
+    .font-sans-body {
+        font-family: 'Lato', sans-serif;
+    }
+
+    .font-script {
+        font-family: 'Great Vibes', cursive;
+    }
+
+    /* Clases de utilidad para colores de la marca */
+    .bg-carbonblack {
+        background-color: var(--color-carbonblack);
+    }
+
+    .bg-sand {
+        background-color: var(--color-sand);
+    }
+
+    .bg-ashgrey {
+        background-color: var(--color-ashgrey);
+    }
+
+    .bg-charcoal {
+        background-color: var(--color-charcoal);
+    }
+
+    .bg-white {
+        background-color: var(--color-white);
+    }
+
+    .text-carbonblack {
+        color: var(--color-carbonblack);
+    }
+
+    .text-sand {
+        color: var(--color-sand);
+    }
+
+    .text-coolsteel {
+        color: var(--color-coolsteel);
+    }
+
+    .text-ashgrey {
+        color: var(--color-ashgrey);
+    }
+
+    .text-charcoal {
+        color: var(--color-charcoal);
+    }
+
+    .border-sand {
+        border-color: var(--color-sand);
+    }
+
+    /* Botón Principal (Estilo Oro Rosado) */
+    .btn-primary {
+        background-color: var(--color-charcoal);
+        color: #fff;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--color-sand);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(212, 163, 129, 0.4);
+    }
+
+    /* Botón Secundario (Outline) */
+    .btn-secondary {
+        border: 1px solid var(--color-coolsteel);
+        color: var(--color-coolsteel);
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--color-coolsteel);
+        color: var(--color-carbonblack);
+    }
+
+    /* Botón Cotizar (Outline) */
+    .btn-alternative {
+        border: 1px solid var(--color-ashgrey);
+        color: var(--color-coolsteel);
+        transition: all 0.3s ease;
+    }
+
+    .btn-alternative:hover {
+        background-color: var(--color-ashgrey);
+        color: var(--color-white);
+    }
+
+    /* Animaciones */
+    .fade-in-section {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        will-change: opacity, visibility;
+    }
+
+    .fade-in-section.is-visible {
+        opacity: 1;
+        transform: none;
+    }
+
+    /* Degradado sutil para el Hero */
+    .hero-overlay {
+        background: linear-gradient(135deg, rgba(193, 173, 118, 0.95) 0%, rgba(255, 248, 229, 0.9) 100%);
+        /* background: linear-gradient(45deg, #c1ad76,#fff8e5); */
+    }
+
+    /* Tamaño del logotipo */
+
+    .website-logo {
+        width: 150px;
+    }
+
+    /* Efecto Hover en las tarjetas de ejemplo */
+
+    .portfolio-card:hover .portfolio-img {
+        transform: scale(1.1);
+    }
+
+    .portfolio-card:hover .portfolio-overlay {
+        opacity: 1;
+
+    }
+
+
+    /* --- ZONA 2: LOVABLE INVITATION (Encapsulado) --- */
+    /* Activamos esto usando <div class="invitation-scope"> en el layout */
+    .invitation-scope {
+        --background: 0 0% 100%;
+        --foreground: 0 0% 12%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 12%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 0 0% 12%;
+        --primary: 44 38% 61%;
+        --primary-foreground: 0 0% 12%;
+        --secondary: 200 3% 83%;
+        --secondary-foreground: 0 0% 30%;
+        --muted: 180 8% 72%;
+        --muted-foreground: 0 0% 30%;
+        --accent: 0 0% 30%;
+        --accent-foreground: 200 3% 83%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 200 3% 83%;
+        --border: 200 3% 83%;
+        --input: 180 8% 72%;
+        --ring: 44 38% 61%;
+        --radius: 1rem;
+
+        /* Variables Lovable */
+        --glass-bg: hsl(0 0% 100% / 0.1);
+        --glass-border: hsl(0 0% 100% / 0.2);
+        --glass-blur: 20px;
+        --shadow-soft: 0 4px 30px hsl(0 0% 0% / 0.1);
+        --shadow-glow: 0 0 40px hsl(44 38% 61% / 0.3);
+    }
+
+    /* Dark Mode dentro del Scope */
+    .dark .invitation-scope,
+    .invitation-scope.dark,
+    .invitation-scope .dark {
+        --background: 0 0% 12%;
+        --foreground: 200 3% 83%;
+        --card: 0 0% 15%;
+        --card-foreground: 200 3% 83%;
+        --popover: 0 0% 15%;
+        --popover-foreground: 200 3% 83%;
+        --primary: 44 38% 61%;
+        --primary-foreground: 0 0% 12%;
+        --muted: 0 0% 30%;
+        --muted-foreground: 180 8% 72%;
+        --accent: 0 0% 30%;
+        --accent-foreground: 200 3% 83%;
+        --border: 0 0% 30%;
+        --input: 0 0% 30%;
+        --glass-bg: hsl(0 0% 100% / 0.05);
+        --glass-border: hsl(0 0% 100% / 0.1);
+    }
 }
 
-/* Fuentes Personalizadas */
-.font-serif-heading {
-    /* font-family: 'Playfair Display', serif; */
-    font-family: 'Cinzel', 'medium 500';
-}
+/* 4. COMPONENTES Y UTILIDADES */
+@layer components {
 
-.font-sans-body {
-    font-family: 'Lato', sans-serif;
-}
+    /* Componentes Lovable Scopeados */
+    .invitation-scope .glass-button {
+        @apply relative overflow-hidden rounded-full px-8 py-3 font-medium transition-all duration-500;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(var(--glass-blur));
+    }
 
-.font-script {
-    font-family: 'Great Vibes', cursive;
-}
+    .invitation-scope .text-gradient {
+        @apply bg-clip-text text-transparent;
+        background-image: linear-gradient(135deg, hsl(44 38% 61%), hsl(44 38% 75%));
+    }
 
-/* Clases de utilidad para colores de la marca */
-.bg-carbonblack {
-    background-color: var(--color-carbonblack);
-}
+    /* Tus utilidades del CRM (fuera del scope para que sigan funcionando) */
+    .bg-carbonblack {
+        background-color: var(--color-carbonblack);
+    }
 
-.bg-sand {
-    background-color: var(--color-sand);
-}
-
-.bg-ashgrey {
-    background-color: var(--color-ashgrey);
-}
-
-.bg-charcoal {
-    background-color: var(--color-charcoal);
-}
-
-.bg-white {
-    background-color: var(--color-white);
-}
-
-.text-carbonblack {
-    color: var(--color-carbonblack);
-}
-
-.text-sand {
-    color: var(--color-sand);
-}
-
-.text-coolsteel {
-    color: var(--color-coolsteel);
-}
-
-.text-ashgrey {
-    color: var(--color-ashgrey);
-}
-
-.text-charcoal {
-    color: var(--color-charcoal);
-}
-
-.border-sand {
-    border-color: var(--color-sand);
-}
-
-/* Botón Principal (Estilo Oro Rosado) */
-.btn-primary {
-    background-color: var(--color-charcoal);
-    color: #fff;
-    transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-    background-color: var(--color-sand);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(212, 163, 129, 0.4);
-}
-
-/* Botón Secundario (Outline) */
-.btn-secondary {
-    border: 1px solid var(--color-coolsteel);
-    color: var(--color-coolsteel);
-    transition: all 0.3s ease;
-}
-
-.btn-secondary:hover {
-    background-color: var(--color-coolsteel);
-    color: var(--color-carbonblack);
-}
-
-/* Botón Cotizar (Outline) */
-.btn-alternative {
-    border: 1px solid var(--color-ashgrey);
-    color: var(--color-coolsteel);
-    transition: all 0.3s ease;
-}
-
-.btn-alternative:hover {
-    background-color: var(--color-ashgrey);
-    color: var(--color-white);
-}
-
-/* Animaciones */
-.fade-in-section {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-    will-change: opacity, visibility;
-}
-
-.fade-in-section.is-visible {
-    opacity: 1;
-    transform: none;
-}
-
-/* Degradado sutil para el Hero */
-.hero-overlay {
-    background: linear-gradient(135deg, rgba(193, 173, 118, 0.95) 0%, rgba(255, 248, 229, 0.9) 100%);
-    /* background: linear-gradient(45deg, #c1ad76,#fff8e5); */
-}
-
-/* Tamaño del logotipo */
-
-.website-logo {
-    width: 150px;
-}
-
-/* Efecto Hover en las tarjetas de ejemplo */
-
-.portfolio-card:hover .portfolio-img {
-    transform: scale(1.1);
-}
-
-.portfolio-card:hover .portfolio-overlay {
-    opacity: 1;
+    .text-sand {
+        color: var(--color-sand);
+    }
 }

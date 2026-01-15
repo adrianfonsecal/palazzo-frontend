@@ -21,5 +21,5 @@ export default async function InvitationPage({ params }) {
   const ThemeComponent = getThemeComponent(themeId);
 
   // 5. Renderizamos
-  return <ThemeComponent data={invitation} />;
+  return <ThemeComponent data={invitation}/>;
 }
