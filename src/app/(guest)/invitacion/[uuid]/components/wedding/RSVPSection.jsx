@@ -2,39 +2,73 @@
 import { useState } from 'react';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
 import { Check, X, Heart, Users } from 'lucide-react';
-import { updateInvitationByUuid } from '@/lib/api';
+import { updateGuestInvitation } from '@/lib/api';
 
-const RSVPSection = ({ guestList, familyName, invitationUuid }) => {
+const RSVPSection = ({ invitationData }) => {
+  const familyName = invitationData.family_name || "Familia";
+  const invitationUuid = invitationData.uuid || null;
   const { ref: titleRef, isVisible: titleVisible } = useScrollReveal();
   const { ref: formRef, isVisible: formVisible } = useScrollReveal();
 
+  // Copy invitation state
+  const [invitationState, setInvitationState] = useState({
+    ...invitationData,
+    guests: invitationData.guests?.map(guest => ({ ...guest })) || []
+  });
+  
   const [response, setResponse] = useState(null);
   const [companions, setCompanions] = useState(0);
   const [submitted, setSubmitted] = useState(false);
-  const [guestListState, setGuestList] = useState(guestList);
 
-  // Función para manejar la respuesta del invitado
+  // Handle individual guest confirmation
   const handleGuestResponse = (guestId, status) => {
-    // 1. Actualizamos la lista localmente para que la UI reaccione rápido
-    const updatedList = guestList.map((guest) => {
-      if (guest.id === guestId) {
-        return { ...guest, attendance: status };
-      }
-      return guest;
+    setInvitationState(prev => {
+      const updatedGuests = prev.guests.map(guest => {
+        if (guest.id === guestId) {
+          return { ...guest, attendance: status };
+        }
+        return guest;
+      });
+
+      // Count accepted companions
+      const acceptedCount = updatedGuests.filter(g => g.attendance === 'ACCEPTED').length;
+      setCompanions(acceptedCount);
+
+      return {
+        ...prev,
+        guests: updatedGuests
+      };
     });
-
-    setGuestList(updatedList); // Actualizamos el estado de la lista
-
-    // 2. Lógica del contador y API
-    if (status === 'ACCEPTED') {
-      setCompanions((prev) => prev + 1); // Aumenta contador
-      console.log(`API Call: Enviar ID ${guestId} con status 'ACCEPTED'`);
-      // aquí llamarías a tu función: updateGuestStatus(guestId, 'ACCEPTED');
-    } else {
-      console.log(`API Call: Enviar ID ${guestId} con status 'DECLINED'`);
-      // aquí llamarías a tu función: updateGuestStatus(guestId, 'DECLINED');
-    }
   };
+
+  // Handle joyfully accept button
+  const handleJoyfullyAccept = () => {
+    setResponse('attending');
+    setInvitationState(prev => ({
+      ...prev,
+      status: 'COMPLETED'
+    }));
+  };
+
+  // Handle regretfully decline button
+  const handleRegretfullyDecline = () => {
+    setResponse('not-attending');
+    setInvitationState(prev => ({
+      ...prev,
+      status: 'COMPLETED',
+      guests: prev.guests.map(guest => ({ ...guest, attendance: 'DECLINED' }))
+    }));
+  };
+
+  // Handle final submission
+  const handleFinalSubmit = async () => {
+    try {
+      await updateGuestInvitation(invitationUuid, invitationState);
+      setSubmitted(true);
+    } catch (error) {
+      console.error('Error updating invitation:', error);
+    }
+  }
 
   if (submitted) {
     return (
@@ -90,7 +124,7 @@ const RSVPSection = ({ guestList, familyName, invitationUuid }) => {
               <p className="text-center text-foreground mb-6 font-serif text-lg">¿Nos acompañas a este evento tan especial?</p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
-                  onClick={() => setResponse('attending')}
+                  onClick={handleJoyfullyAccept}
                   className={`flex-1 flex items-center justify-center gap-3 rounded-2xl border-2 p-6 transition-all duration-300 ${response === 'attending'
                     ? 'border-primary bg-primary/10 text-foreground'
                     : 'border-border hover:border-primary/50 text-muted-foreground hover:text-foreground'
@@ -101,7 +135,7 @@ const RSVPSection = ({ guestList, familyName, invitationUuid }) => {
                 </button>
 
                 <button
-                  onClick={() => setResponse('not-attending')}
+                  onClick={handleRegretfullyDecline}
                   className={`flex-1 flex items-center justify-center gap-3 rounded-2xl border-2 p-6 transition-all duration-300 ${response === 'not-attending'
                     ? 'border-primary bg-primary/10 text-foreground'
                     : 'border-border hover:border-primary/50 text-muted-foreground hover:text-foreground'
@@ -115,27 +149,6 @@ const RSVPSection = ({ guestList, familyName, invitationUuid }) => {
 
             {/* Companion Count */}
             {response === 'attending' && (
-              // <div className="space-y-4 animate-fade-up">
-              //   <div className="flex items-center justify-center gap-2 text-muted-foreground">
-              //     <Users className="h-5 w-5" />
-              //     <span>Number of guests attending</span>
-              //   </div>
-              //   <div className="flex items-center justify-center gap-6">
-              //     <button
-              //       onClick={() => setCompanions(Math.max(1, companions - 1))}
-              //       className="h-12 w-12 rounded-full border border-border hover:border-primary/50 text-foreground transition-colors text-xl"
-              //     >
-              //       −
-              //     </button>
-              //     <span className="font-serif text-4xl text-foreground w-12 text-center">{companions}</span>
-              //     <button
-              //       onClick={() => setCompanions(Math.min(4, companions + 1))}
-              //       className="h-12 w-12 rounded-full border border-border hover:border-primary/50 text-foreground transition-colors text-xl"
-              //     >
-              //       +
-              //     </button>
-              //   </div>
-              // </div>
               <div className="glass-card w-full max-w-xl mx-auto p-6 animate-fade-up">
                 {/* Título en Serif elegante y color Primario (Dorado/Sand) */}
                 <h3 className="font-serif text-2xl text-primary text-center mb-6 tracking-wide border-b border-primary/20 pb-4">
@@ -143,7 +156,7 @@ const RSVPSection = ({ guestList, familyName, invitationUuid }) => {
                 </h3>
 
                 <div className="space-y-3">
-                  {guestList.map((guest, index) => (
+                  {invitationState.guests.map((guest, index) => (
                     <div
                       key={guest.id}
                       className="flex flex-row items-center justify-between gap-4 p-4 rounded-lg hover:bg-white/5 transition-colors border-b border-primary/10 last:border-0 animate-fade-in"
@@ -154,8 +167,6 @@ const RSVPSection = ({ guestList, familyName, invitationUuid }) => {
                       </span>
 
                       <div className="flex items-center gap-2 shrink-0">
-
-
                         {guest.attendance === 'PENDING' ? (
                           <>
                             <button
@@ -172,7 +183,6 @@ const RSVPSection = ({ guestList, familyName, invitationUuid }) => {
                             </button>
                           </>
                         ) : (
-                          /* CASO 2: Si YA RESPONDIÓ, mostramos el BADGE (Botones desaparecen) */
                           <span className={`px-4 py-1.5 rounded-full text-xs font-medium tracking-wider border shadow-sm ${guest.attendance === 'ACCEPTED'
                               ? 'bg-primary/20 text-primary-foreground border-primary/30'
                               : 'bg-destructive/10 text-destructive border-destructive/20'
@@ -180,7 +190,6 @@ const RSVPSection = ({ guestList, familyName, invitationUuid }) => {
                             {guest.attendance === 'ACCEPTED' ? 'ASISTIRÁ' : 'NO ASISTIRÁ'}
                           </span>
                         )}
-
                       </div>
                     </div>
                   ))}
@@ -190,10 +199,13 @@ const RSVPSection = ({ guestList, familyName, invitationUuid }) => {
 
             {response && (
               <button
-                onClick={handleGuestResponse}
-                className="glass-button w-full text-foreground animate-fade-up"
+                onClick={handleFinalSubmit}
+                disabled={response === 'attending' && companions === 0}
+                className="glass-button w-full text-foreground animate-fade-up disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Confirmar {companions} invitados
+                {response === 'attending' 
+                  ? `Confirmar ${companions} invitado${companions !== 1 ? 's' : ''}`
+                  : 'Confirmar respuesta'}
               </button>
             )}
           </div>

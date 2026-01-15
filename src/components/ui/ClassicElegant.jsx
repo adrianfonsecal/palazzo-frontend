@@ -14,9 +14,6 @@ export default function ClassicElegant({ data }) {
   const weddingName = data.wedding?.couple_names || "Nuestra Boda";
   const weddingDate = data.wedding?.event_date.split('T')[0].substring(0, 10) || "Fecha por definirse";
   const weddingLocation = data.wedding?.location_name || "Lugar por definirse";
-  const familyName = data.family_name || "Familia";
-  const guestList = data.guests || "Invitados";
-  const invitationUuid = data.uuid || null;
 
   return (
     <main className="dark">
@@ -25,7 +22,7 @@ export default function ClassicElegant({ data }) {
       <CeremonySection weddingLocation={weddingLocation}/>
       <DressCodeSection />
       <LodgingSection />
-      <RSVPSection guestList={guestList} familyName={familyName} invitationUuid={invitationUuid}/>
+      <RSVPSection invitationData={data}/>
       <PhotoUploadSection />
       <FooterSection />
     </main>
