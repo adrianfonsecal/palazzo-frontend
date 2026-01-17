@@ -79,7 +79,7 @@ export const getAllInvitations = async () => {
 };
 
 export const updateInvitationByUuid = async (uuid, data) => {
-  const response = await api.patch(`/admin/invitation/${uuid}/`, data);
+  const response = await api.patch(`/admin/invitations/${uuid}/`, data);
   return response.data;
 };
 

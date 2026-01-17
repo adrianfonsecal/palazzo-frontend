@@ -228,7 +228,7 @@ export default function GuestsPage() {
 
                         <button
                             onClick={() => setIsCreateOpen(true)} // <--- CORREGIDO
-                            className="..."
+                            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800 font-medium text-sm transition shadow-sm"
                         >
                             <Plus size={16} /> Nueva Invitación
                         </button>
