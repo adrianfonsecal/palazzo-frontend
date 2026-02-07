@@ -28,7 +28,7 @@ export default function Navbar({ user }) {
                     <div className="flex justify-between h-20 items-center">
 
                         <Link href="/" className="shrink-0 flex items-center gap-2 cursor-pointer">
-                            <Image src={logo} alt="Palazzo Invites Logo" className='website-logo w-auto h-auto' />
+                            <Image src={logo} alt="Palazzo Invites Logo" className='website-logo' />
                         </Link>
 
 

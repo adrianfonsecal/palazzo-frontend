@@ -1,5 +1,5 @@
 import Image from "next/image";
-import dashboardImg from '@/assets/images/dashboard-screenshot.png';
+import dashboardImg from '@/assets/images/mockup-peview.png';
 //import InvitationPage from "./(guest)/invitacion/[uuid]/page";
 import palazzoLogo from '../../../public/WebsiteLogoLight.png';
 import Link from 'next/link';
