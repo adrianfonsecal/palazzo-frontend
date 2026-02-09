@@ -91,7 +91,7 @@ const RSVPSection = ({ invitationData }) => {
   }
 
   return (
-    <section className="relative min-h-screen bg-background py-24 md:py-32">
+    <section className="relative min-h-screen bg-background py-24 md:py-32" id='rsvp-section'>
       {/* Decorative background */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -right-64 top-1/4 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />

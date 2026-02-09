@@ -49,6 +49,7 @@
     "input-otp": "^1.4.2",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.562.0",
+    "motion": "^12.33.0",
     "next": "16.1.1",
     "next-themes": "^0.4.6",
     "postcss": "^8.4.31",
@@ -67,6 +68,8 @@
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",
+    "@types/node": "25.2.2",
+    "@types/react": "19.2.13",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.1"
