@@ -1,6 +1,6 @@
 import { Heart } from 'lucide-react';
 
-const FooterSection = () => {
+const FooterSection = ({ weddingName, weddingDate, weddingLocation }) => {
   return (
     <footer className="relative bg-background py-16 border-t border-border/50">
       <div className="mx-auto max-w-4xl px-6 text-center">
@@ -9,30 +9,24 @@ const FooterSection = () => {
           <Heart className="h-4 w-4 text-primary" />
           <div className="h-px w-12 bg-gradient-to-l from-transparent to-primary/50" />
         </div>
-        
+
         <h3 className="mt-8 font-serif text-2xl md:text-3xl text-foreground">
-          Sofia & Alessandro
+          {weddingName}
         </h3>
-        
+
         <p className="mt-4 text-muted-foreground">
-          September 21, 2025 • Florence, Italy
+          {weddingDate}
         </p>
-        
-        <div className="mt-8 flex justify-center gap-8">
-          <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-            Our Story
-          </a>
-          <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-            Registry
-          </a>
-          <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-            Contact
-          </a>
-        </div>
-        
+        <p className="mt-4 text-muted-foreground">{weddingLocation}</p>
+
         <p className="mt-12 text-xs text-muted-foreground/60">
-          Made with love for our special day
+          Hecho con amor por:
         </p>
+        {/* CENTER the image */}
+        <a href="https://palazzoinvites.com" target="_blank" rel="noopener noreferrer">
+          <img src="/WebsiteLogoDark.png" className="w-24 h-24 mx-auto" alt="WebsiteLogoDark" />
+        </a>
+
       </div>
     </footer>
   );

@@ -17,18 +17,18 @@ export default function ClassicElegant({ data }) {
 
   return (
     <main className="dark">
-      <HeroSection weddingName={weddingName} weddingDate={weddingDate}/>
+      <HeroSection weddingName={weddingName} weddingDate={weddingDate} />
       <ItinerarySection />
-      <CeremonySection weddingLocation={weddingLocation}/>
+      <CeremonySection weddingLocation={weddingLocation} />
       <DressCodeSection />
       <LodgingSection />
-      <RSVPSection invitationData={data}/>
+      <RSVPSection invitationData={data} />
       <PhotoUploadSection />
-      <FooterSection />
+      <FooterSection weddingDate={weddingDate} weddingName={weddingName} weddingLocation={weddingLocation} />
     </main>
     // <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 font-serif">
     //   <div className="max-w-md w-full bg-white shadow-2xl rounded-lg overflow-hidden border border-slate-200">
-        
+
     //     {/* Cabecera */}
     //     <div className="bg-slate-900 text-white p-8 text-center">
     //       <p className="uppercase tracking-widest text-xs mb-2">Te invitan a la boda de</p>

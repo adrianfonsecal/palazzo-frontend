@@ -4,9 +4,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { useScroll, useTransform, useSpring, motion } from "framer-motion";
 
 
-const FRAME_COUNT = 141;
+const FRAME_COUNT = 192;
 
-export default function WeddingSequence({coupleNames, eventDate}) {
+export default function WeddingSequence({ coupleNames, eventDate }) {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const [images, setImages] = useState([]);
@@ -31,8 +31,8 @@ export default function WeddingSequence({coupleNames, eventDate}) {
 
       for (let i = 0; i < FRAME_COUNT; i++) {
         const img = new Image();
-        const frameNumber = String(i + 1).padStart(3, '0');
-        img.src = `/sequence/ezgif-frame-${frameNumber}.jpg`;
+        //const frameNumber = String(i + 1).padStart(3, '0');
+        img.src = `/sequence/${i + 1}.webp`;
         img.onload = () => {
           loadedCount++;
           setLoadingProgress(Math.floor((loadedCount / FRAME_COUNT) * 100));
@@ -107,9 +107,13 @@ export default function WeddingSequence({coupleNames, eventDate}) {
         </div>
       )}
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
-        
+
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/20 to-background" />
         <canvas ref={canvasRef} className="max-w-full max-h-full" />
+
+        {/* Gradient Overlay for Smooth Transition */}
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-background via-background/60 to-transparent z-10 pointer-events-none" />
+
         <SceneText
           progress={smoothProgress}
           range={[0, 0.2]}
@@ -145,14 +149,14 @@ export default function WeddingSequence({coupleNames, eventDate}) {
 }
 
 function SceneText({ progress, range, title, sub, position, isCTA = false }) {
-    const handleSubmit = () => {
-        // dirígelo al componente RSVPSection
-        const rsvpSection = document.getElementById('rsvp-section');
-        if (rsvpSection) {
-            rsvpSection.scrollIntoView({ behavior: 'smooth' });    
-        }
-
+  const handleSubmit = () => {
+    // dirígelo al componente RSVPSection
+    const rsvpSection = document.getElementById('rsvp-section');
+    if (rsvpSection) {
+      rsvpSection.scrollIntoView({ behavior: 'smooth' });
     }
+
+  }
   const opacity = useTransform(
     progress,
     [range[0], range[0] + 0.05, range[1] - 0.05, range[1]],
@@ -183,16 +187,15 @@ function SceneText({ progress, range, title, sub, position, isCTA = false }) {
   return (
     <motion.div
       style={{ opacity, y }}
-      className={`absolute inset-0 flex flex-col justify-center pointer-events-none ${
-        alignmentClasses[position]
-      }`}
+      className={`absolute inset-0 flex flex-col justify-center pointer-events-none ${alignmentClasses[position]
+        }`}
     >
-        <h2 className="mb-4 font-serif-heading text-5xl tracking-[0.2em] md:tracking-[0.4em] uppercase text-sand md:text-9xl leading-none" >
-            {title}
-        </h2>
+      <h2 className="mb-4 font-serif-heading text-5xl tracking-[0.2em] md:tracking-[0.4em] uppercase text-sand md:text-9xl leading-none" >
+        {title}
+      </h2>
       <div className={`px-8 py-4 rounded-3xl backdrop-blur-md bg-white/30 border border-white/20 shadow-2xl transition-all duration-1000`}>
         <p className="mt-4 text-xlg md:text-base font-body uppercase tracking-widest text-carbonblack max-w-md ">
-            {sub}
+          {sub}
         </p>
       </div>
       {isCTA && (

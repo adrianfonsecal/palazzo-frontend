@@ -49,7 +49,7 @@ const DressCodeSection = () => {
     //           Dress Code
     //         </h2>
     //         <div className="section-divider mt-8 lg:mx-0" />
-            
+
     //         <div className="mt-8 space-y-6">
     //           <div className="glass-card">
     //             <h4 className="font-serif text-xl text-foreground">Black Tie Optional</h4>
@@ -82,7 +82,11 @@ const DressCodeSection = () => {
     //     </div>
     //   </div>
     // </section>
-    <CinematicSequence />
+    <>
+      <div className="h-[80vh] w-full bg-gradient-to-b from-[#1f1f1f] via-[#060508] to-[#020202]" />
+      <CinematicSequence />
+      <div className="h-[80vh] w-full bg-gradient-to-b from-[#060508] via-[#060508] to-[#1f1f1f]" />
+    </>
   );
 };
 

@@ -15,7 +15,7 @@ const RSVPSection = ({ invitationData }) => {
     ...invitationData,
     guests: invitationData.guests?.map(guest => ({ ...guest })) || []
   });
-  
+
   const [response, setResponse] = useState(null);
   const [companions, setCompanions] = useState(0);
   const [submitted, setSubmitted] = useState(false);
@@ -109,7 +109,7 @@ const RSVPSection = ({ invitationData }) => {
           <h2 className="mt-4 font-serif text-4xl md:text-5xl lg:text-6xl text-foreground">{familyName}</h2>
           <div className="section-divider mt-8" />
           <p className="mt-8 text-muted-foreground">
-            Kindly respond by August 15, 2025
+            Por favor, responde antes del 15 de agosto de 2025
           </p>
         </div>
 
@@ -131,7 +131,7 @@ const RSVPSection = ({ invitationData }) => {
                     }`}
                 >
                   <Check className={`h-6 w-6 ${response === 'attending' ? 'text-primary' : ''}`} />
-                  <span className="font-medium">Joyfully Accept</span>
+                  <span className="font-medium">Encantado de asistir</span>
                 </button>
 
                 <button
@@ -142,7 +142,7 @@ const RSVPSection = ({ invitationData }) => {
                     }`}
                 >
                   <X className={`h-6 w-6 ${response === 'not-attending' ? 'text-primary' : ''}`} />
-                  <span className="font-medium">Regretfully Decline</span>
+                  <span className="font-medium">No puedo asistir</span>
                 </button>
               </div>
             </div>
@@ -184,8 +184,8 @@ const RSVPSection = ({ invitationData }) => {
                           </>
                         ) : (
                           <span className={`px-4 py-1.5 rounded-full text-xs font-medium tracking-wider border shadow-sm ${guest.attendance === 'ACCEPTED'
-                              ? 'bg-primary/20 text-primary-foreground border-primary/30'
-                              : 'bg-destructive/10 text-destructive border-destructive/20'
+                            ? 'bg-primary/20 text-primary-foreground border-primary/30'
+                            : 'bg-destructive/10 text-destructive border-destructive/20'
                             }`}>
                             {guest.attendance === 'ACCEPTED' ? 'ASISTIRÁ' : 'NO ASISTIRÁ'}
                           </span>
@@ -203,7 +203,7 @@ const RSVPSection = ({ invitationData }) => {
                 disabled={response === 'attending' && companions === 0}
                 className="glass-button w-full text-foreground animate-fade-up disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {response === 'attending' 
+                {response === 'attending'
                   ? `Confirmar ${companions} invitado${companions !== 1 ? 's' : ''}`
                   : 'Confirmar respuesta'}
               </button>

@@ -6,7 +6,7 @@ import { Camera, Upload, Image as ImageIcon, X, Check } from 'lucide-react';
 const PhotoUploadSection = () => {
   const { ref: titleRef, isVisible: titleVisible } = useScrollReveal();
   const { ref: uploaderRef, isVisible: uploaderVisible } = useScrollReveal();
-  
+
   const [photos, setPhotos] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -46,20 +46,20 @@ const PhotoUploadSection = () => {
     <section className="relative min-h-screen bg-background py-24 md:py-32">
       <div className="mx-auto max-w-4xl px-6">
         {/* Section Header */}
-        <div 
+        <div
           ref={titleRef}
           className={`mb-16 text-center transition-all duration-1000 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <p className="text-sm font-medium uppercase tracking-[0.3em] text-primary">Share the Memories</p>
-          <h2 className="mt-4 font-serif text-4xl md:text-5xl lg:text-6xl text-foreground">Photo Gallery</h2>
+          <p className="text-sm font-medium uppercase tracking-[0.3em] text-primary">Comparte las Memorias</p>
+          <h2 className="mt-4 font-serif text-4xl md:text-5xl lg:text-6xl text-foreground">Galeria de Fotos</h2>
           <div className="section-divider mt-8" />
           <p className="mt-8 text-muted-foreground max-w-xl mx-auto">
-            Help us capture every moment! Upload your favorite photos from our celebration.
+            Ayudanos a capturar cada momento! Sube tus favoritos fotos de nuestra celebración.
           </p>
         </div>
 
         {/* Upload Area */}
-        <div 
+        <div
           ref={uploaderRef}
           className={`transition-all duration-1000 delay-200 ${uploaderVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
@@ -69,11 +69,10 @@ const PhotoUploadSection = () => {
             onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
-            className={`relative cursor-pointer rounded-3xl border-2 border-dashed p-12 text-center transition-all duration-300 ${
-              isDragging 
-                ? 'border-primary bg-primary/5' 
+            className={`relative cursor-pointer rounded-3xl border-2 border-dashed p-12 text-center transition-all duration-300 ${isDragging
+                ? 'border-primary bg-primary/5'
                 : 'border-border hover:border-primary/50'
-            }`}
+              }`}
           >
             <input
               ref={fileInputRef}
@@ -83,17 +82,17 @@ const PhotoUploadSection = () => {
               onChange={handleFileSelect}
               className="hidden"
             />
-            
+
             <div className="flex flex-col items-center gap-4">
               <div className="glass-card inline-flex h-20 w-20 items-center justify-center rounded-full">
                 <Camera className="h-8 w-8 text-primary" />
               </div>
               <div>
                 <p className="text-foreground font-medium">
-                  Drag photos here or click to browse
+                  Arrastra las fotos aquí o haz clic para buscar
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Upload up to 6 photos • JPG, PNG, HEIC
+                  Sube hasta 6 fotos • JPG, PNG, HEIC
                 </p>
               </div>
             </div>
@@ -103,7 +102,7 @@ const PhotoUploadSection = () => {
           {photos.length > 0 && (
             <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-4">
               {photos.map((photo, index) => (
-                <div 
+                <div
                   key={index}
                   className="relative aspect-square overflow-hidden rounded-2xl group animate-scale-in"
                 >
@@ -122,7 +121,7 @@ const PhotoUploadSection = () => {
                   </div>
                 </div>
               ))}
-              
+
               {/* Add more placeholder */}
               {photos.length < 6 && (
                 <button
@@ -130,7 +129,7 @@ const PhotoUploadSection = () => {
                   className="aspect-square rounded-2xl border-2 border-dashed border-border hover:border-primary/50 transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground"
                 >
                   <Upload className="h-6 w-6" />
-                  <span className="text-sm">Add More</span>
+                  <span className="text-sm">Agregar más</span>
                 </button>
               )}
             </div>
@@ -146,12 +145,12 @@ const PhotoUploadSection = () => {
                 {uploadSuccess ? (
                   <>
                     <Check className="h-5 w-5 text-primary" />
-                    Photos Uploaded!
+                    Fotos Subidas!
                   </>
                 ) : (
                   <>
                     <Upload className="h-5 w-5" />
-                    Upload {photos.length} Photo{photos.length > 1 ? 's' : ''}
+                    Subir {photos.length} Foto{photos.length > 1 ? 's' : ''}
                   </>
                 )}
               </button>
@@ -162,11 +161,11 @@ const PhotoUploadSection = () => {
         {/* Sample Gallery Grid */}
         <div className="mt-20">
           <p className="text-center text-sm uppercase tracking-[0.2em] text-muted-foreground mb-8">
-            Recent Uploads
+            Fotos Recientes
           </p>
           <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
             {Array.from({ length: 12 }).map((_, i) => (
-              <div 
+              <div
                 key={i}
                 className="aspect-square rounded-lg bg-muted/30 flex items-center justify-center"
               >
