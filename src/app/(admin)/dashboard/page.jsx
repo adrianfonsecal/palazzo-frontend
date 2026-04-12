@@ -10,9 +10,9 @@ export default function DashboardPage() {
     const [families, setFamilies] = useState([]);
     const [guests, setGuests] = useState([]);
     const [loading, setLoading] = useState(true);
-    
+
     const router = useRouter();
-        
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -39,9 +39,15 @@ export default function DashboardPage() {
     const totalFamilies = families.length;
     const totalGuests = guests.length;
     const totalInvitations = totalGuests + totalFamilies;
-    const confirmed = guests.filter(i => i.attendance === 'ACCEPTED').length;
-
     
+    // Contabilizar acompañantes + el invitado principal (familia)
+    const confirmed = guests.filter(i => i.attendance === 'ACCEPTED').length + 
+                     families.filter(f => f.status === 'COMPLETED').length;
+                     
+    const declined = guests.filter(i => i.attendance === 'DECLINED').length + 
+                    families.filter(f => f.status === 'DECLINED').length;
+                    
+    const pending = totalInvitations - (confirmed + declined);
 
     return (
         <>
@@ -49,7 +55,7 @@ export default function DashboardPage() {
 
                 <main className="max-w-7xl mx-auto p-6">
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
                         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                             <h3 className="text-gray-500 text-sm font-medium uppercase">Total Familias</h3>
                             <p className="text-3xl font-bold text-slate-900 mt-2">{totalFamilies}</p>
@@ -64,7 +70,11 @@ export default function DashboardPage() {
                         </div>
                         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                             <h3 className="text-gray-500 text-sm font-medium uppercase">Pendientes</h3>
-                            <p className="text-3xl font-bold text-yellow-600 mt-2">{totalInvitations - confirmed}</p>
+                            <p className="text-3xl font-bold text-yellow-600 mt-2">{pending}</p>
+                        </div>
+                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                            <h3 className="text-gray-500 text-sm font-medium uppercase">Rechazados</h3>
+                            <p className="text-3xl font-bold text-red-600 mt-2">{declined}</p>
                         </div>
                     </div>
 

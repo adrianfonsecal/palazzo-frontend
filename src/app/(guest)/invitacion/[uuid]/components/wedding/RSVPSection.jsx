@@ -16,9 +16,23 @@ const RSVPSection = ({ invitationData }) => {
     guests: invitationData.guests?.map(guest => ({ ...guest })) || []
   });
 
-  const [response, setResponse] = useState(null);
-  const [companions, setCompanions] = useState(0);
-  const [submitted, setSubmitted] = useState(false);
+  const [response, setResponse] = useState(() => {
+    if (invitationData.status === 'COMPLETED' || invitationData.status === 'DECLINED') {
+      // Check guests' attendance to determine response type
+      const isAttending = invitationData.guests?.some(g => g.attendance === 'ACCEPTED');
+      // If it was already completed but all are declined, consider it not-attending
+      return isAttending ? 'attending' : 'not-attending';
+    }
+    return null;
+  });
+
+  const [companions, setCompanions] = useState(() => {
+    return invitationData.guests?.filter(g => g.attendance === 'ACCEPTED').length || 0;
+  });
+
+  const [submitted, setSubmitted] = useState(() => {
+    return invitationData.status === 'COMPLETED' || invitationData.status === 'DECLINED';
+  });
 
   // Handle individual guest confirmation
   const handleGuestResponse = (guestId, status) => {
@@ -55,7 +69,7 @@ const RSVPSection = ({ invitationData }) => {
     setResponse('not-attending');
     setInvitationState(prev => ({
       ...prev,
-      status: 'COMPLETED',
+      status: 'DECLINED',
       guests: prev.guests.map(guest => ({ ...guest, attendance: 'DECLINED' }))
     }));
   };
